@@ -1,6 +1,27 @@
 # server localhost
+
+# 服务基本信息
 Name: UserServer.rpc
 ListenOn: 0.0.0.0:8080
+
+# 数据库配置
+DataSource: "root:123456@tcp(localhost:3306)/user_server"
+
+# Redis 配置
+Cache:
+  - Type: "node"
+    Host: "localhost:6379"
+    Pass: "123456"  # 如果 Redis 没有密码，可以留空
+    Weight: 100
+
+# Log 配置
+Log:
+  ServiceName: "userServer"
+  Mode: "file"
+  Path: "./logs"
+  Level: "info"
+
+# etcd配置
 Etcd:
   Hosts:
   - localhost:2379
