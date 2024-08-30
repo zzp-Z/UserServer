@@ -109,8 +109,8 @@ message DeleteUserResponse {
 
 // 验证密码请求
 message AuthenticateRequest {
-  // 用户名
-  string Username = 1;
+  // 电子邮件
+  string Email = 1;
   // 密码
   string Password = 2;
 }
