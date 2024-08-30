@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/zzp-Z/UserServer/db/crud"
-	"github.com/zzp-Z/UserServer/db/model"
+	"github.com/zzp-Z/UserServer/db/enum"
 	"github.com/zzp-Z/UserServer/internal/logic"
 	"github.com/zzp-Z/UserServer/internal/svc"
 	"github.com/zzp-Z/UserServer/logs"
@@ -60,7 +60,7 @@ func (l *RegisterLogic) Register(in *user_server.RegisterRequest) (*user_server.
 		Username:     in.Username,
 		HashPassword: hashPassword,
 		Email:        in.Email,
-		Status:       string(model.UserStatusEnabled),
+		Status:       enum.UserStatusEnabled.String(),
 	})
 	if err != nil {
 		logs.Error(nil, logs.ErrorContent{

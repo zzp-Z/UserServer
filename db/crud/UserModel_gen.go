@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/cache"
@@ -21,9 +22,8 @@ var (
 	userRowsExpectAutoSet   = strings.Join(stringx.Remove(userFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	userRowsWithPlaceHolder = strings.Join(stringx.Remove(userFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
-	cacheUserServerUserIdPrefix       = "cache:userServer:user:id:"
-	cacheUserServerUserEmailPrefix    = "cache:userServer:user:email:"
-	cacheUserServerUserUsernamePrefix = "cache:userServer:user:username:"
+	cacheUserIdPrefix    = "cache:user:id:"
+	cacheUserEmailPrefix = "cache:user:email:"
 )
 
 type (
@@ -31,7 +31,6 @@ type (
 		Insert(ctx context.Context, data *User) (sql.Result, error)
 		FindOne(ctx context.Context, id uint64) (*User, error)
 		FindOneByEmail(ctx context.Context, email string) (*User, error)
-		FindOneByUsername(ctx context.Context, username string) (*User, error)
 		Update(ctx context.Context, data *User) error
 		Delete(ctx context.Context, id uint64) error
 	}
@@ -42,17 +41,17 @@ type (
 	}
 
 	User struct {
-		Id           uint64         `db:"id"`
-		CreatedAt    sql.NullTime   `db:"created_at"`
-		UpdatedAt    sql.NullTime   `db:"updated_at"`
-		DeletedAt    sql.NullTime   `db:"deleted_at"`
-		Username     string         `db:"username"`
-		HashPassword string         `db:"hash_password"`
-		Bio          sql.NullString `db:"bio"`
-		Message      sql.NullString `db:"message"`
-		Email        string         `db:"email"`
-		MoodId       int64          `db:"mood_id"`
-		Status       string         `db:"status"`
+		Id           uint64         `db:"id"`            // ID 字段
+		CreatedAt    time.Time      `db:"created_at"`    // 默认值是当前时间
+		UpdatedAt    time.Time      `db:"updated_at"`    // 默认值是当前时间，并且每次数据更新都会更新这个值
+		DeletedAt    sql.NullTime   `db:"deleted_at"`    // 当数据被软删除的时候，这个字段会被设置为当前时间
+		Username     string         `db:"username"`      // 不唯一，不允许为 NULL
+		HashPassword string         `db:"hash_password"` // hash后的密码
+		Bio          sql.NullString `db:"bio"`           // 用户的简介字段
+		Quotes       sql.NullString `db:"quotes"`        // 个人语录
+		Email        string         `db:"email"`         // 邮箱字段
+		MoodId       sql.NullInt64  `db:"mood_id"`       // 心情字段
+		Status       string         `db:"status"`        // 默认值是 0，0启用；1：禁用
 	}
 )
 
@@ -69,20 +68,19 @@ func (m *defaultUserModel) Delete(ctx context.Context, id uint64) error {
 		return err
 	}
 
-	userServerUserEmailKey := fmt.Sprintf("%s%v", cacheUserServerUserEmailPrefix, data.Email)
-	userServerUserIdKey := fmt.Sprintf("%s%v", cacheUserServerUserIdPrefix, id)
-	userServerUserUsernameKey := fmt.Sprintf("%s%v", cacheUserServerUserUsernamePrefix, data.Username)
+	userEmailKey := fmt.Sprintf("%s%v", cacheUserEmailPrefix, data.Email)
+	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, id)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 		return conn.ExecCtx(ctx, query, id)
-	}, userServerUserEmailKey, userServerUserIdKey, userServerUserUsernameKey)
+	}, userEmailKey, userIdKey)
 	return err
 }
 
 func (m *defaultUserModel) FindOne(ctx context.Context, id uint64) (*User, error) {
-	userServerUserIdKey := fmt.Sprintf("%s%v", cacheUserServerUserIdPrefix, id)
+	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, id)
 	var resp User
-	err := m.QueryRowCtx(ctx, &resp, userServerUserIdKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
+	err := m.QueryRowCtx(ctx, &resp, userIdKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
 		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", userRows, m.table)
 		return conn.QueryRowCtx(ctx, v, query, id)
 	})
@@ -97,9 +95,9 @@ func (m *defaultUserModel) FindOne(ctx context.Context, id uint64) (*User, error
 }
 
 func (m *defaultUserModel) FindOneByEmail(ctx context.Context, email string) (*User, error) {
-	userServerUserEmailKey := fmt.Sprintf("%s%v", cacheUserServerUserEmailPrefix, email)
+	userEmailKey := fmt.Sprintf("%s%v", cacheUserEmailPrefix, email)
 	var resp User
-	err := m.QueryRowIndexCtx(ctx, &resp, userServerUserEmailKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
+	err := m.QueryRowIndexCtx(ctx, &resp, userEmailKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
 		query := fmt.Sprintf("select %s from %s where `email` = ? limit 1", userRows, m.table)
 		if err := conn.QueryRowCtx(ctx, &resp, query, email); err != nil {
 			return nil, err
@@ -116,34 +114,13 @@ func (m *defaultUserModel) FindOneByEmail(ctx context.Context, email string) (*U
 	}
 }
 
-func (m *defaultUserModel) FindOneByUsername(ctx context.Context, username string) (*User, error) {
-	userServerUserUsernameKey := fmt.Sprintf("%s%v", cacheUserServerUserUsernamePrefix, username)
-	var resp User
-	err := m.QueryRowIndexCtx(ctx, &resp, userServerUserUsernameKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
-		query := fmt.Sprintf("select %s from %s where `username` = ? limit 1", userRows, m.table)
-		if err := conn.QueryRowCtx(ctx, &resp, query, username); err != nil {
-			return nil, err
-		}
-		return resp.Id, nil
-	}, m.queryPrimary)
-	switch err {
-	case nil:
-		return &resp, nil
-	case sqlc.ErrNotFound:
-		return nil, ErrNotFound
-	default:
-		return nil, err
-	}
-}
-
 func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, error) {
-	userServerUserEmailKey := fmt.Sprintf("%s%v", cacheUserServerUserEmailPrefix, data.Email)
-	userServerUserIdKey := fmt.Sprintf("%s%v", cacheUserServerUserIdPrefix, data.Id)
-	userServerUserUsernameKey := fmt.Sprintf("%s%v", cacheUserServerUserUsernamePrefix, data.Username)
+	userEmailKey := fmt.Sprintf("%s%v", cacheUserEmailPrefix, data.Email)
+	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.DeletedAt, data.Username, data.HashPassword, data.Bio, data.Message, data.Email, data.MoodId, data.Status)
-	}, userServerUserEmailKey, userServerUserIdKey, userServerUserUsernameKey)
+		return conn.ExecCtx(ctx, query, data.DeletedAt, data.Username, data.HashPassword, data.Bio, data.Quotes, data.Email, data.MoodId, data.Status)
+	}, userEmailKey, userIdKey)
 	return ret, err
 }
 
@@ -153,18 +130,17 @@ func (m *defaultUserModel) Update(ctx context.Context, newData *User) error {
 		return err
 	}
 
-	userServerUserEmailKey := fmt.Sprintf("%s%v", cacheUserServerUserEmailPrefix, data.Email)
-	userServerUserIdKey := fmt.Sprintf("%s%v", cacheUserServerUserIdPrefix, data.Id)
-	userServerUserUsernameKey := fmt.Sprintf("%s%v", cacheUserServerUserUsernamePrefix, data.Username)
+	userEmailKey := fmt.Sprintf("%s%v", cacheUserEmailPrefix, data.Email)
+	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, data.Id)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.DeletedAt, newData.Username, newData.HashPassword, newData.Bio, newData.Message, newData.Email, newData.MoodId, newData.Status, newData.Id)
-	}, userServerUserEmailKey, userServerUserIdKey, userServerUserUsernameKey)
+		return conn.ExecCtx(ctx, query, newData.DeletedAt, newData.Username, newData.HashPassword, newData.Bio, newData.Quotes, newData.Email, newData.MoodId, newData.Status, newData.Id)
+	}, userEmailKey, userIdKey)
 	return err
 }
 
 func (m *defaultUserModel) formatPrimary(primary any) string {
-	return fmt.Sprintf("%s%v", cacheUserServerUserIdPrefix, primary)
+	return fmt.Sprintf("%s%v", cacheUserIdPrefix, primary)
 }
 
 func (m *defaultUserModel) queryPrimary(ctx context.Context, conn sqlx.SqlConn, v, primary any) error {
