@@ -1,0 +1,196 @@
+syntax = "proto3";
+
+package user_server;
+option go_package = "./user_server";
+
+
+// 用户注册请求
+message RegisterRequest {
+  // 用户名
+  string Username = 1;
+  // 密码
+  string Password = 2;
+  // 电子邮件
+  string Email = 3;
+}
+
+// 用户注册响应
+message RegisterResponse {
+  // 用户id
+  uint32 UserId = 1;
+}
+
+// 获取用户信息请求
+message GetUserInfoByIdRequest {
+  // 用户ID
+  uint32 UserId = 1;
+}
+
+// 获取用户信息（包含敏感信息）响应
+message UserSensitiveInfoResponse {
+  // 用户ID
+  uint32 UserId = 1;
+  // 用户名
+  string Username = 2;
+  // 个人介绍
+  string Bio = 4;
+  // 粉丝数
+  uint32 FollowerCount = 5;
+  // 关注数
+  uint32 FollowingCount = 6;
+  // 留言
+  string Message = 7;
+  // 心情ID
+  uint32 MoodId = 8;
+  // 电子邮件（敏感信息）
+  string Email = 9;
+}
+// 获取用户信息（不包含敏感信息）响应
+message UserNonSensitiveInfoResponse {
+  // 用户ID
+  uint32 UserId = 1;
+  // 用户名
+  string Username = 2;
+  // 个人介绍
+  string Bio = 4;
+  // 粉丝数
+  uint32 FollowerCount = 5;
+  // 关注数
+  uint32 FollowingCount = 6;
+  // 留言
+  string Message = 7;
+  // 心情ID
+  uint32 MoodId = 8;
+}
+
+// 更新用户信息请求
+message UpdateUserRequest {
+  // 用户ID
+  uint32 UserId = 1;
+  // 新用户名，可选
+  string Username = 2;
+  // 新个人介绍，可选
+  string Bio = 3;
+}
+
+// 更新用户信息响应
+message UpdateUserResponse {
+  // 用户id
+  uint32 UserId = 1;
+}
+
+// 修改密码请求
+message ChangePasswordRequest {
+  // 用户ID
+  uint32 UserId = 1;
+  // 当前密码
+  string OldPassword = 2;
+  // 新密码
+  string NewPassword = 3;
+}
+
+// 修改密码响应
+message ChangePasswordResponse {
+  // 用户ID
+  uint32 UserId = 1;
+}
+
+// 删除用户请求
+message DeleteUserRequest {
+  // 用户ID
+  uint32 UserId = 1;
+}
+
+// 删除用户响应
+message DeleteUserResponse {
+  // 用户ID
+  uint32 UserId = 1;
+}
+
+// 验证密码请求
+message AuthenticateRequest {
+  // 用户名
+  string Username = 1;
+  // 密码
+  string Password = 2;
+}
+// 验证密码响应
+message AuthenticateResponse {
+  // 用户ID
+  uint32 UserId = 1;
+}
+// 关注请求
+message FollowRequest {
+  // 关注者ID
+  uint32 FollowerId = 1;
+  // 被关注者ID
+  uint32 FolloweeId = 2;
+}
+
+// 关注响应
+message FollowResponse {
+  // 被关注者ID
+  uint32 FolloweeId = 1;
+}
+
+// 取消关注请求
+message UnfollowRequest {
+  // 关注者ID
+  uint32 FollowerId = 1;
+  // 被取消关注者ID
+  uint32 FolloweeId = 2;
+}
+
+// 取消关注响应
+message UnfollowResponse {
+  // 被取消关注者ID
+  uint32 FolloweeId = 1;
+}
+
+// 获取关注列表请求
+message GetFollowingListRequest {
+  // 用户ID
+  uint32 UserId = 1;
+}
+
+// 获取关注列表响应
+message GetFollowingListResponse {
+  // 关注列表
+  repeated UserNonSensitiveInfoResponse Following = 1;
+}
+
+// 获取被关注列表请求
+message GetFollowersListRequest {
+  // 用户ID
+  uint32 UserId = 1;
+}
+
+// 获取被关注列表响应
+message GetFollowersListResponse {
+  // 被关注列表
+  repeated UserNonSensitiveInfoResponse Followers = 1;
+}
+service UserServer {
+  // 注册新用户
+  rpc Register (RegisterRequest) returns (RegisterResponse);
+  // 验证用户密码（用途包括不限于“登录”，修改密码前的验证，修改信息前的验证等）
+  rpc Authenticate (AuthenticateRequest) returns (AuthenticateResponse);
+  // 获取用户信息（包含敏感信息）
+  rpc GetUserSensitive (GetUserInfoByIdRequest) returns (UserSensitiveInfoResponse);
+  // 获取用户信息（不包含敏感信息）
+  rpc GetUserNonSensitive (GetUserInfoByIdRequest) returns (UserNonSensitiveInfoResponse);
+  // 更新用户信息
+  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse);
+  // 修改密码
+  rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
+  // 删除用户
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
+  // 关注用户
+  rpc Follow (FollowRequest) returns (FollowResponse);
+  // 取消关注用户
+  rpc Unfollow (UnfollowRequest) returns (UnfollowResponse);
+  // 获取关注列表
+  rpc GetFollowingList (GetFollowingListRequest) returns (GetFollowingListResponse);
+  // 获取被关注列表
+  rpc GetFollowersList (GetFollowersListRequest) returns (GetFollowersListResponse);
+}
