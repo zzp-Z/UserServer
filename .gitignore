@@ -1,3 +1,4 @@
 /etc/UserServer.yaml
 /build
 /.idea
+/logs/*.log
