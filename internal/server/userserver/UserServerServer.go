@@ -63,27 +63,3 @@ func (s *UserServerServer) DeleteUser(ctx context.Context, in *user_server.Delet
 	l := userserverlogic.NewDeleteUserLogic(ctx, s.svcCtx)
 	return l.DeleteUser(in)
 }
-
-// 关注用户
-func (s *UserServerServer) Follow(ctx context.Context, in *user_server.FollowRequest) (*user_server.FollowResponse, error) {
-	l := userserverlogic.NewFollowLogic(ctx, s.svcCtx)
-	return l.Follow(in)
-}
-
-// 取消关注用户
-func (s *UserServerServer) Unfollow(ctx context.Context, in *user_server.UnfollowRequest) (*user_server.UnfollowResponse, error) {
-	l := userserverlogic.NewUnfollowLogic(ctx, s.svcCtx)
-	return l.Unfollow(in)
-}
-
-// 获取关注列表
-func (s *UserServerServer) GetFollowingList(ctx context.Context, in *user_server.GetFollowingListRequest) (*user_server.GetFollowingListResponse, error) {
-	l := userserverlogic.NewGetFollowingListLogic(ctx, s.svcCtx)
-	return l.GetFollowingList(in)
-}
-
-// 获取被关注列表
-func (s *UserServerServer) GetFollowersList(ctx context.Context, in *user_server.GetFollowersListRequest) (*user_server.GetFollowersListResponse, error) {
-	l := userserverlogic.NewGetFollowersListLogic(ctx, s.svcCtx)
-	return l.GetFollowersList(in)
-}

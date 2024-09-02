@@ -7,7 +7,7 @@ import (
 	"github.com/zzp-Z/UserServer/db/enum"
 	"github.com/zzp-Z/UserServer/internal/logic"
 	"github.com/zzp-Z/UserServer/internal/svc"
-	"github.com/zzp-Z/UserServer/logs"
+	"github.com/zzp-Z/UserServer/log"
 	"github.com/zzp-Z/UserServer/user_server"
 	"regexp"
 	"strings"
@@ -38,7 +38,7 @@ func (l *RegisterLogic) Register(in *user_server.RegisterRequest) (*user_server.
 	// STEP: 校验各种信息
 	in, err := validateInfo(in)
 	if err != nil {
-		logs.Error(nil, logs.ErrorContent{
+		log.Error(nil, log.ErrorContent{
 			Message:   in.Email,
 			Error:     err,
 			ErrorCode: "RR900",
@@ -48,7 +48,7 @@ func (l *RegisterLogic) Register(in *user_server.RegisterRequest) (*user_server.
 	// STEP: hash密码
 	hashPassword, err := l.Tools.HashPassword(in.Password)
 	if err != nil {
-		logs.Error(nil, logs.ErrorContent{
+		log.Error(nil, log.ErrorContent{
 			Message:   in.Email,
 			Error:     err,
 			ErrorCode: "RR901",
@@ -63,7 +63,7 @@ func (l *RegisterLogic) Register(in *user_server.RegisterRequest) (*user_server.
 		Status:       enum.UserStatusEnabled.String(),
 	})
 	if err != nil {
-		logs.Error(nil, logs.ErrorContent{
+		log.Error(nil, log.ErrorContent{
 			Message:   in.Email,
 			Error:     err,
 			ErrorCode: "RR902",
@@ -73,7 +73,7 @@ func (l *RegisterLogic) Register(in *user_server.RegisterRequest) (*user_server.
 	// STEP: 返回用户ID
 	id, err := insert.LastInsertId()
 	if err != nil {
-		logs.Error(nil, logs.ErrorContent{
+		log.Error(nil, log.ErrorContent{
 			Message:   in.Email,
 			Error:     err,
 			ErrorCode: "RR903",
@@ -81,7 +81,7 @@ func (l *RegisterLogic) Register(in *user_server.RegisterRequest) (*user_server.
 		return nil, err
 	}
 	return &user_server.RegisterResponse{
-		UserId: uint32(id),
+		UserId: uint64(id),
 	}, nil
 }
 
@@ -104,7 +104,7 @@ func validateInfo(in *user_server.RegisterRequest) (*user_server.RegisterRequest
 	// 校验用户名
 	if len(username) == 0 || len(username) > 20 {
 		err := fmt.Errorf("用户名不能为空且长度不能超过20个字符")
-		logs.Error(nil, logs.ErrorContent{
+		log.Error(nil, log.ErrorContent{
 			Message:   rawUsername,
 			Error:     err,
 			ErrorCode: "RVI900",
@@ -114,7 +114,7 @@ func validateInfo(in *user_server.RegisterRequest) (*user_server.RegisterRequest
 	// 校验用户名中是否包含非法字符
 	if containsInvalidChars(username) {
 		err := fmt.Errorf("用户名包含非法字符")
-		logs.Error(nil, logs.ErrorContent{
+		log.Error(nil, log.ErrorContent{
 			Message:   rawUsername,
 			Error:     err,
 			ErrorCode: "RVI901",
@@ -125,7 +125,7 @@ func validateInfo(in *user_server.RegisterRequest) (*user_server.RegisterRequest
 	// 校验密码
 	if len(rawPassword) > 0 && rawPassword != password {
 		err := fmt.Errorf("密码前后含有空格")
-		logs.Error(nil, logs.ErrorContent{
+		log.Error(nil, log.ErrorContent{
 			Message:   rawPassword,
 			Error:     err,
 			ErrorCode: "RVI902",
@@ -134,7 +134,7 @@ func validateInfo(in *user_server.RegisterRequest) (*user_server.RegisterRequest
 	}
 	if len(password) == 0 {
 		err := fmt.Errorf("密码不能为空")
-		logs.Error(nil, logs.ErrorContent{
+		log.Error(nil, log.ErrorContent{
 			Message:   rawPassword,
 			Error:     err,
 			ErrorCode: "RVI903",
@@ -145,7 +145,7 @@ func validateInfo(in *user_server.RegisterRequest) (*user_server.RegisterRequest
 	// 校验电子邮件
 	if len(rawEmail) > 0 && rawEmail != email {
 		err := fmt.Errorf("电子邮件前后含有空格")
-		logs.Error(nil, logs.ErrorContent{
+		log.Error(nil, log.ErrorContent{
 			Message:   rawEmail,
 			Error:     err,
 			ErrorCode: "RVI904",
@@ -154,7 +154,7 @@ func validateInfo(in *user_server.RegisterRequest) (*user_server.RegisterRequest
 	}
 	if len(email) == 0 {
 		err := fmt.Errorf("电子邮件不能为空")
-		logs.Error(nil, logs.ErrorContent{
+		log.Error(nil, log.ErrorContent{
 			Message:   rawEmail,
 			Error:     err,
 			ErrorCode: "RVI905",
@@ -163,7 +163,7 @@ func validateInfo(in *user_server.RegisterRequest) (*user_server.RegisterRequest
 	}
 	if !isValidEmail(email) {
 		err := fmt.Errorf("电子邮件格式不正确")
-		logs.Error(nil, logs.ErrorContent{
+		log.Error(nil, log.ErrorContent{
 			Message:   rawEmail,
 			Error:     err,
 			ErrorCode: "RVI906",

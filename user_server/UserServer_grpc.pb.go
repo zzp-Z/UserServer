@@ -26,10 +26,6 @@ const (
 	UserServer_UpdateUser_FullMethodName          = "/user_server.UserServer/UpdateUser"
 	UserServer_ChangePassword_FullMethodName      = "/user_server.UserServer/ChangePassword"
 	UserServer_DeleteUser_FullMethodName          = "/user_server.UserServer/DeleteUser"
-	UserServer_Follow_FullMethodName              = "/user_server.UserServer/Follow"
-	UserServer_Unfollow_FullMethodName            = "/user_server.UserServer/Unfollow"
-	UserServer_GetFollowingList_FullMethodName    = "/user_server.UserServer/GetFollowingList"
-	UserServer_GetFollowersList_FullMethodName    = "/user_server.UserServer/GetFollowersList"
 )
 
 // UserServerClient is the client API for UserServer service.
@@ -50,14 +46,6 @@ type UserServerClient interface {
 	ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...grpc.CallOption) (*ChangePasswordResponse, error)
 	// 删除用户
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
-	// 关注用户
-	Follow(ctx context.Context, in *FollowRequest, opts ...grpc.CallOption) (*FollowResponse, error)
-	// 取消关注用户
-	Unfollow(ctx context.Context, in *UnfollowRequest, opts ...grpc.CallOption) (*UnfollowResponse, error)
-	// 获取关注列表
-	GetFollowingList(ctx context.Context, in *GetFollowingListRequest, opts ...grpc.CallOption) (*GetFollowingListResponse, error)
-	// 获取被关注列表
-	GetFollowersList(ctx context.Context, in *GetFollowersListRequest, opts ...grpc.CallOption) (*GetFollowersListResponse, error)
 }
 
 type userServerClient struct {
@@ -138,46 +126,6 @@ func (c *userServerClient) DeleteUser(ctx context.Context, in *DeleteUserRequest
 	return out, nil
 }
 
-func (c *userServerClient) Follow(ctx context.Context, in *FollowRequest, opts ...grpc.CallOption) (*FollowResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(FollowResponse)
-	err := c.cc.Invoke(ctx, UserServer_Follow_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServerClient) Unfollow(ctx context.Context, in *UnfollowRequest, opts ...grpc.CallOption) (*UnfollowResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UnfollowResponse)
-	err := c.cc.Invoke(ctx, UserServer_Unfollow_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServerClient) GetFollowingList(ctx context.Context, in *GetFollowingListRequest, opts ...grpc.CallOption) (*GetFollowingListResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetFollowingListResponse)
-	err := c.cc.Invoke(ctx, UserServer_GetFollowingList_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServerClient) GetFollowersList(ctx context.Context, in *GetFollowersListRequest, opts ...grpc.CallOption) (*GetFollowersListResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetFollowersListResponse)
-	err := c.cc.Invoke(ctx, UserServer_GetFollowersList_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // UserServerServer is the server API for UserServer service.
 // All implementations must embed UnimplementedUserServerServer
 // for forward compatibility.
@@ -196,14 +144,6 @@ type UserServerServer interface {
 	ChangePassword(context.Context, *ChangePasswordRequest) (*ChangePasswordResponse, error)
 	// 删除用户
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
-	// 关注用户
-	Follow(context.Context, *FollowRequest) (*FollowResponse, error)
-	// 取消关注用户
-	Unfollow(context.Context, *UnfollowRequest) (*UnfollowResponse, error)
-	// 获取关注列表
-	GetFollowingList(context.Context, *GetFollowingListRequest) (*GetFollowingListResponse, error)
-	// 获取被关注列表
-	GetFollowersList(context.Context, *GetFollowersListRequest) (*GetFollowersListResponse, error)
 	mustEmbedUnimplementedUserServerServer()
 }
 
@@ -234,18 +174,6 @@ func (UnimplementedUserServerServer) ChangePassword(context.Context, *ChangePass
 }
 func (UnimplementedUserServerServer) DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
-}
-func (UnimplementedUserServerServer) Follow(context.Context, *FollowRequest) (*FollowResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Follow not implemented")
-}
-func (UnimplementedUserServerServer) Unfollow(context.Context, *UnfollowRequest) (*UnfollowResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Unfollow not implemented")
-}
-func (UnimplementedUserServerServer) GetFollowingList(context.Context, *GetFollowingListRequest) (*GetFollowingListResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetFollowingList not implemented")
-}
-func (UnimplementedUserServerServer) GetFollowersList(context.Context, *GetFollowersListRequest) (*GetFollowersListResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetFollowersList not implemented")
 }
 func (UnimplementedUserServerServer) mustEmbedUnimplementedUserServerServer() {}
 func (UnimplementedUserServerServer) testEmbeddedByValue()                    {}
@@ -394,78 +322,6 @@ func _UserServer_DeleteUser_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserServer_Follow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FollowRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServerServer).Follow(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserServer_Follow_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServerServer).Follow(ctx, req.(*FollowRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserServer_Unfollow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UnfollowRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServerServer).Unfollow(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserServer_Unfollow_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServerServer).Unfollow(ctx, req.(*UnfollowRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserServer_GetFollowingList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetFollowingListRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServerServer).GetFollowingList(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserServer_GetFollowingList_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServerServer).GetFollowingList(ctx, req.(*GetFollowingListRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserServer_GetFollowersList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetFollowersListRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServerServer).GetFollowersList(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserServer_GetFollowersList_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServerServer).GetFollowersList(ctx, req.(*GetFollowersListRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // UserServer_ServiceDesc is the grpc.ServiceDesc for UserServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -501,21 +357,757 @@ var UserServer_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "DeleteUser",
 			Handler:    _UserServer_DeleteUser_Handler,
 		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "UserServer.proto",
+}
+
+const (
+	FollowServer_Follow_FullMethodName           = "/user_server.FollowServer/Follow"
+	FollowServer_Unfollow_FullMethodName         = "/user_server.FollowServer/Unfollow"
+	FollowServer_GetFollowingList_FullMethodName = "/user_server.FollowServer/GetFollowingList"
+	FollowServer_GetFollowersList_FullMethodName = "/user_server.FollowServer/GetFollowersList"
+)
+
+// FollowServerClient is the client API for FollowServer service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type FollowServerClient interface {
+	// 关注用户
+	Follow(ctx context.Context, in *FollowRequest, opts ...grpc.CallOption) (*FollowResponse, error)
+	// 取消关注用户
+	Unfollow(ctx context.Context, in *UnfollowRequest, opts ...grpc.CallOption) (*UnfollowResponse, error)
+	// 获取关注列表
+	GetFollowingList(ctx context.Context, in *GetFollowingListRequest, opts ...grpc.CallOption) (*GetFollowingListResponse, error)
+	// 获取被关注列表
+	GetFollowersList(ctx context.Context, in *GetFollowersListRequest, opts ...grpc.CallOption) (*GetFollowersListResponse, error)
+}
+
+type followServerClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewFollowServerClient(cc grpc.ClientConnInterface) FollowServerClient {
+	return &followServerClient{cc}
+}
+
+func (c *followServerClient) Follow(ctx context.Context, in *FollowRequest, opts ...grpc.CallOption) (*FollowResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FollowResponse)
+	err := c.cc.Invoke(ctx, FollowServer_Follow_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *followServerClient) Unfollow(ctx context.Context, in *UnfollowRequest, opts ...grpc.CallOption) (*UnfollowResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UnfollowResponse)
+	err := c.cc.Invoke(ctx, FollowServer_Unfollow_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *followServerClient) GetFollowingList(ctx context.Context, in *GetFollowingListRequest, opts ...grpc.CallOption) (*GetFollowingListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFollowingListResponse)
+	err := c.cc.Invoke(ctx, FollowServer_GetFollowingList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *followServerClient) GetFollowersList(ctx context.Context, in *GetFollowersListRequest, opts ...grpc.CallOption) (*GetFollowersListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFollowersListResponse)
+	err := c.cc.Invoke(ctx, FollowServer_GetFollowersList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// FollowServerServer is the server API for FollowServer service.
+// All implementations must embed UnimplementedFollowServerServer
+// for forward compatibility.
+type FollowServerServer interface {
+	// 关注用户
+	Follow(context.Context, *FollowRequest) (*FollowResponse, error)
+	// 取消关注用户
+	Unfollow(context.Context, *UnfollowRequest) (*UnfollowResponse, error)
+	// 获取关注列表
+	GetFollowingList(context.Context, *GetFollowingListRequest) (*GetFollowingListResponse, error)
+	// 获取被关注列表
+	GetFollowersList(context.Context, *GetFollowersListRequest) (*GetFollowersListResponse, error)
+	mustEmbedUnimplementedFollowServerServer()
+}
+
+// UnimplementedFollowServerServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedFollowServerServer struct{}
+
+func (UnimplementedFollowServerServer) Follow(context.Context, *FollowRequest) (*FollowResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Follow not implemented")
+}
+func (UnimplementedFollowServerServer) Unfollow(context.Context, *UnfollowRequest) (*UnfollowResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Unfollow not implemented")
+}
+func (UnimplementedFollowServerServer) GetFollowingList(context.Context, *GetFollowingListRequest) (*GetFollowingListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFollowingList not implemented")
+}
+func (UnimplementedFollowServerServer) GetFollowersList(context.Context, *GetFollowersListRequest) (*GetFollowersListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFollowersList not implemented")
+}
+func (UnimplementedFollowServerServer) mustEmbedUnimplementedFollowServerServer() {}
+func (UnimplementedFollowServerServer) testEmbeddedByValue()                      {}
+
+// UnsafeFollowServerServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to FollowServerServer will
+// result in compilation errors.
+type UnsafeFollowServerServer interface {
+	mustEmbedUnimplementedFollowServerServer()
+}
+
+func RegisterFollowServerServer(s grpc.ServiceRegistrar, srv FollowServerServer) {
+	// If the following call pancis, it indicates UnimplementedFollowServerServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&FollowServer_ServiceDesc, srv)
+}
+
+func _FollowServer_Follow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FollowRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FollowServerServer).Follow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FollowServer_Follow_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FollowServerServer).Follow(ctx, req.(*FollowRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FollowServer_Unfollow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnfollowRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FollowServerServer).Unfollow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FollowServer_Unfollow_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FollowServerServer).Unfollow(ctx, req.(*UnfollowRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FollowServer_GetFollowingList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFollowingListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FollowServerServer).GetFollowingList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FollowServer_GetFollowingList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FollowServerServer).GetFollowingList(ctx, req.(*GetFollowingListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FollowServer_GetFollowersList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFollowersListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FollowServerServer).GetFollowersList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FollowServer_GetFollowersList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FollowServerServer).GetFollowersList(ctx, req.(*GetFollowersListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// FollowServer_ServiceDesc is the grpc.ServiceDesc for FollowServer service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var FollowServer_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "user_server.FollowServer",
+	HandlerType: (*FollowServerServer)(nil),
+	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Follow",
-			Handler:    _UserServer_Follow_Handler,
+			Handler:    _FollowServer_Follow_Handler,
 		},
 		{
 			MethodName: "Unfollow",
-			Handler:    _UserServer_Unfollow_Handler,
+			Handler:    _FollowServer_Unfollow_Handler,
 		},
 		{
 			MethodName: "GetFollowingList",
-			Handler:    _UserServer_GetFollowingList_Handler,
+			Handler:    _FollowServer_GetFollowingList_Handler,
 		},
 		{
 			MethodName: "GetFollowersList",
-			Handler:    _UserServer_GetFollowersList_Handler,
+			Handler:    _FollowServer_GetFollowersList_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "UserServer.proto",
+}
+
+const (
+	RoleServer_GetRole_FullMethodName     = "/user_server.RoleServer/GetRole"
+	RoleServer_GetRoleList_FullMethodName = "/user_server.RoleServer/GetRoleList"
+	RoleServer_UpdateRole_FullMethodName  = "/user_server.RoleServer/UpdateRole"
+	RoleServer_DeleteRole_FullMethodName  = "/user_server.RoleServer/DeleteRole"
+	RoleServer_CreateRole_FullMethodName  = "/user_server.RoleServer/CreateRole"
+)
+
+// RoleServerClient is the client API for RoleServer service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type RoleServerClient interface {
+	// 获取角色信息
+	GetRole(ctx context.Context, in *GetRoleRequest, opts ...grpc.CallOption) (*GetRoleResponse, error)
+	// 获取角色列表
+	GetRoleList(ctx context.Context, in *GetRoleListRequest, opts ...grpc.CallOption) (*GetRoleListResponse, error)
+	// 更新角色
+	UpdateRole(ctx context.Context, in *UpdateRoleRequest, opts ...grpc.CallOption) (*UpdateRoleResponse, error)
+	// 删除角色
+	DeleteRole(ctx context.Context, in *DeleteRoleRequest, opts ...grpc.CallOption) (*DeleteRoleResponse, error)
+	// 创建角色
+	CreateRole(ctx context.Context, in *CreateRoleRequest, opts ...grpc.CallOption) (*CreateRoleResponse, error)
+}
+
+type roleServerClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewRoleServerClient(cc grpc.ClientConnInterface) RoleServerClient {
+	return &roleServerClient{cc}
+}
+
+func (c *roleServerClient) GetRole(ctx context.Context, in *GetRoleRequest, opts ...grpc.CallOption) (*GetRoleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetRoleResponse)
+	err := c.cc.Invoke(ctx, RoleServer_GetRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roleServerClient) GetRoleList(ctx context.Context, in *GetRoleListRequest, opts ...grpc.CallOption) (*GetRoleListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetRoleListResponse)
+	err := c.cc.Invoke(ctx, RoleServer_GetRoleList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roleServerClient) UpdateRole(ctx context.Context, in *UpdateRoleRequest, opts ...grpc.CallOption) (*UpdateRoleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateRoleResponse)
+	err := c.cc.Invoke(ctx, RoleServer_UpdateRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roleServerClient) DeleteRole(ctx context.Context, in *DeleteRoleRequest, opts ...grpc.CallOption) (*DeleteRoleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteRoleResponse)
+	err := c.cc.Invoke(ctx, RoleServer_DeleteRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roleServerClient) CreateRole(ctx context.Context, in *CreateRoleRequest, opts ...grpc.CallOption) (*CreateRoleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateRoleResponse)
+	err := c.cc.Invoke(ctx, RoleServer_CreateRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// RoleServerServer is the server API for RoleServer service.
+// All implementations must embed UnimplementedRoleServerServer
+// for forward compatibility.
+type RoleServerServer interface {
+	// 获取角色信息
+	GetRole(context.Context, *GetRoleRequest) (*GetRoleResponse, error)
+	// 获取角色列表
+	GetRoleList(context.Context, *GetRoleListRequest) (*GetRoleListResponse, error)
+	// 更新角色
+	UpdateRole(context.Context, *UpdateRoleRequest) (*UpdateRoleResponse, error)
+	// 删除角色
+	DeleteRole(context.Context, *DeleteRoleRequest) (*DeleteRoleResponse, error)
+	// 创建角色
+	CreateRole(context.Context, *CreateRoleRequest) (*CreateRoleResponse, error)
+	mustEmbedUnimplementedRoleServerServer()
+}
+
+// UnimplementedRoleServerServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedRoleServerServer struct{}
+
+func (UnimplementedRoleServerServer) GetRole(context.Context, *GetRoleRequest) (*GetRoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRole not implemented")
+}
+func (UnimplementedRoleServerServer) GetRoleList(context.Context, *GetRoleListRequest) (*GetRoleListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRoleList not implemented")
+}
+func (UnimplementedRoleServerServer) UpdateRole(context.Context, *UpdateRoleRequest) (*UpdateRoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateRole not implemented")
+}
+func (UnimplementedRoleServerServer) DeleteRole(context.Context, *DeleteRoleRequest) (*DeleteRoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteRole not implemented")
+}
+func (UnimplementedRoleServerServer) CreateRole(context.Context, *CreateRoleRequest) (*CreateRoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateRole not implemented")
+}
+func (UnimplementedRoleServerServer) mustEmbedUnimplementedRoleServerServer() {}
+func (UnimplementedRoleServerServer) testEmbeddedByValue()                    {}
+
+// UnsafeRoleServerServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to RoleServerServer will
+// result in compilation errors.
+type UnsafeRoleServerServer interface {
+	mustEmbedUnimplementedRoleServerServer()
+}
+
+func RegisterRoleServerServer(s grpc.ServiceRegistrar, srv RoleServerServer) {
+	// If the following call pancis, it indicates UnimplementedRoleServerServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&RoleServer_ServiceDesc, srv)
+}
+
+func _RoleServer_GetRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServerServer).GetRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoleServer_GetRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServerServer).GetRole(ctx, req.(*GetRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RoleServer_GetRoleList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRoleListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServerServer).GetRoleList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoleServer_GetRoleList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServerServer).GetRoleList(ctx, req.(*GetRoleListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RoleServer_UpdateRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServerServer).UpdateRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoleServer_UpdateRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServerServer).UpdateRole(ctx, req.(*UpdateRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RoleServer_DeleteRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServerServer).DeleteRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoleServer_DeleteRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServerServer).DeleteRole(ctx, req.(*DeleteRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RoleServer_CreateRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServerServer).CreateRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RoleServer_CreateRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServerServer).CreateRole(ctx, req.(*CreateRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// RoleServer_ServiceDesc is the grpc.ServiceDesc for RoleServer service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var RoleServer_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "user_server.RoleServer",
+	HandlerType: (*RoleServerServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetRole",
+			Handler:    _RoleServer_GetRole_Handler,
+		},
+		{
+			MethodName: "GetRoleList",
+			Handler:    _RoleServer_GetRoleList_Handler,
+		},
+		{
+			MethodName: "UpdateRole",
+			Handler:    _RoleServer_UpdateRole_Handler,
+		},
+		{
+			MethodName: "DeleteRole",
+			Handler:    _RoleServer_DeleteRole_Handler,
+		},
+		{
+			MethodName: "CreateRole",
+			Handler:    _RoleServer_CreateRole_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "UserServer.proto",
+}
+
+const (
+	UserRoleServer_GetUserRoles_FullMethodName   = "/user_server.UserRoleServer/GetUserRoles"
+	UserRoleServer_AddUserRole_FullMethodName    = "/user_server.UserRoleServer/AddUserRole"
+	UserRoleServer_DeleteUserRole_FullMethodName = "/user_server.UserRoleServer/DeleteUserRole"
+	UserRoleServer_GetRoleUsers_FullMethodName   = "/user_server.UserRoleServer/GetRoleUsers"
+	UserRoleServer_CheckUserRole_FullMethodName  = "/user_server.UserRoleServer/CheckUserRole"
+)
+
+// UserRoleServerClient is the client API for UserRoleServer service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type UserRoleServerClient interface {
+	// 获取用户角色列表
+	GetUserRoles(ctx context.Context, in *GetUserRolesRequest, opts ...grpc.CallOption) (*GetUserRolesResponse, error)
+	// 添加用户角色
+	AddUserRole(ctx context.Context, in *AddUserRoleRequest, opts ...grpc.CallOption) (*AddUserRoleResponse, error)
+	// 删除用户角色
+	DeleteUserRole(ctx context.Context, in *DeleteUserRoleRequest, opts ...grpc.CallOption) (*DeleteUserRoleResponse, error)
+	// 获取角色用户列表
+	GetRoleUsers(ctx context.Context, in *GetRoleUsersRequest, opts ...grpc.CallOption) (*GetRoleUsersResponse, error)
+	// 检查用户角色
+	CheckUserRole(ctx context.Context, in *CheckUserRoleRequest, opts ...grpc.CallOption) (*CheckUserRoleResponse, error)
+}
+
+type userRoleServerClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewUserRoleServerClient(cc grpc.ClientConnInterface) UserRoleServerClient {
+	return &userRoleServerClient{cc}
+}
+
+func (c *userRoleServerClient) GetUserRoles(ctx context.Context, in *GetUserRolesRequest, opts ...grpc.CallOption) (*GetUserRolesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserRolesResponse)
+	err := c.cc.Invoke(ctx, UserRoleServer_GetUserRoles_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userRoleServerClient) AddUserRole(ctx context.Context, in *AddUserRoleRequest, opts ...grpc.CallOption) (*AddUserRoleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddUserRoleResponse)
+	err := c.cc.Invoke(ctx, UserRoleServer_AddUserRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userRoleServerClient) DeleteUserRole(ctx context.Context, in *DeleteUserRoleRequest, opts ...grpc.CallOption) (*DeleteUserRoleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteUserRoleResponse)
+	err := c.cc.Invoke(ctx, UserRoleServer_DeleteUserRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userRoleServerClient) GetRoleUsers(ctx context.Context, in *GetRoleUsersRequest, opts ...grpc.CallOption) (*GetRoleUsersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetRoleUsersResponse)
+	err := c.cc.Invoke(ctx, UserRoleServer_GetRoleUsers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userRoleServerClient) CheckUserRole(ctx context.Context, in *CheckUserRoleRequest, opts ...grpc.CallOption) (*CheckUserRoleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckUserRoleResponse)
+	err := c.cc.Invoke(ctx, UserRoleServer_CheckUserRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// UserRoleServerServer is the server API for UserRoleServer service.
+// All implementations must embed UnimplementedUserRoleServerServer
+// for forward compatibility.
+type UserRoleServerServer interface {
+	// 获取用户角色列表
+	GetUserRoles(context.Context, *GetUserRolesRequest) (*GetUserRolesResponse, error)
+	// 添加用户角色
+	AddUserRole(context.Context, *AddUserRoleRequest) (*AddUserRoleResponse, error)
+	// 删除用户角色
+	DeleteUserRole(context.Context, *DeleteUserRoleRequest) (*DeleteUserRoleResponse, error)
+	// 获取角色用户列表
+	GetRoleUsers(context.Context, *GetRoleUsersRequest) (*GetRoleUsersResponse, error)
+	// 检查用户角色
+	CheckUserRole(context.Context, *CheckUserRoleRequest) (*CheckUserRoleResponse, error)
+	mustEmbedUnimplementedUserRoleServerServer()
+}
+
+// UnimplementedUserRoleServerServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedUserRoleServerServer struct{}
+
+func (UnimplementedUserRoleServerServer) GetUserRoles(context.Context, *GetUserRolesRequest) (*GetUserRolesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserRoles not implemented")
+}
+func (UnimplementedUserRoleServerServer) AddUserRole(context.Context, *AddUserRoleRequest) (*AddUserRoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddUserRole not implemented")
+}
+func (UnimplementedUserRoleServerServer) DeleteUserRole(context.Context, *DeleteUserRoleRequest) (*DeleteUserRoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteUserRole not implemented")
+}
+func (UnimplementedUserRoleServerServer) GetRoleUsers(context.Context, *GetRoleUsersRequest) (*GetRoleUsersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRoleUsers not implemented")
+}
+func (UnimplementedUserRoleServerServer) CheckUserRole(context.Context, *CheckUserRoleRequest) (*CheckUserRoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckUserRole not implemented")
+}
+func (UnimplementedUserRoleServerServer) mustEmbedUnimplementedUserRoleServerServer() {}
+func (UnimplementedUserRoleServerServer) testEmbeddedByValue()                        {}
+
+// UnsafeUserRoleServerServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to UserRoleServerServer will
+// result in compilation errors.
+type UnsafeUserRoleServerServer interface {
+	mustEmbedUnimplementedUserRoleServerServer()
+}
+
+func RegisterUserRoleServerServer(s grpc.ServiceRegistrar, srv UserRoleServerServer) {
+	// If the following call pancis, it indicates UnimplementedUserRoleServerServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&UserRoleServer_ServiceDesc, srv)
+}
+
+func _UserRoleServer_GetUserRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserRolesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserRoleServerServer).GetUserRoles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserRoleServer_GetUserRoles_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserRoleServerServer).GetUserRoles(ctx, req.(*GetUserRolesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserRoleServer_AddUserRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddUserRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserRoleServerServer).AddUserRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserRoleServer_AddUserRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserRoleServerServer).AddUserRole(ctx, req.(*AddUserRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserRoleServer_DeleteUserRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteUserRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserRoleServerServer).DeleteUserRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserRoleServer_DeleteUserRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserRoleServerServer).DeleteUserRole(ctx, req.(*DeleteUserRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserRoleServer_GetRoleUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRoleUsersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserRoleServerServer).GetRoleUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserRoleServer_GetRoleUsers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserRoleServerServer).GetRoleUsers(ctx, req.(*GetRoleUsersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserRoleServer_CheckUserRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckUserRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserRoleServerServer).CheckUserRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserRoleServer_CheckUserRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserRoleServerServer).CheckUserRole(ctx, req.(*CheckUserRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// UserRoleServer_ServiceDesc is the grpc.ServiceDesc for UserRoleServer service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var UserRoleServer_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "user_server.UserRoleServer",
+	HandlerType: (*UserRoleServerServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetUserRoles",
+			Handler:    _UserRoleServer_GetUserRoles_Handler,
+		},
+		{
+			MethodName: "AddUserRole",
+			Handler:    _UserRoleServer_AddUserRole_Handler,
+		},
+		{
+			MethodName: "DeleteUserRole",
+			Handler:    _UserRoleServer_DeleteUserRole_Handler,
+		},
+		{
+			MethodName: "GetRoleUsers",
+			Handler:    _UserRoleServer_GetRoleUsers_Handler,
+		},
+		{
+			MethodName: "CheckUserRole",
+			Handler:    _UserRoleServer_CheckUserRole_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

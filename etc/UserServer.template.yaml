@@ -5,7 +5,7 @@ Name: UserServer.rpc
 ListenOn: 0.0.0.0:8080
 
 # 数据库配置
-DataSource: "root:123456@tcp(localhost:3306)/user_server"
+DataSource: "root:123456@tcp(localhost:3306)/user_server?parseTime=true"
 
 # Redis 配置
 Cache:

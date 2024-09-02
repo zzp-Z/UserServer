@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"github.com/zzp-Z/UserServer/db/crud"
 	"github.com/zzp-Z/UserServer/internal/logic"
-	"github.com/zzp-Z/UserServer/logs"
-
 	"github.com/zzp-Z/UserServer/internal/svc"
+	"github.com/zzp-Z/UserServer/log"
 	"github.com/zzp-Z/UserServer/user_server"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -36,7 +35,7 @@ func (l *AuthenticateLogic) Authenticate(in *user_server.AuthenticateRequest) (*
 	// Step 1: 验证邮箱是否存在
 	user, err := l.UserModel.FindOneByEmail(l.ctx, in.Email)
 	if err != nil {
-		logs.Error(nil, logs.ErrorContent{
+		log.Error(nil, log.ErrorContent{
 			Message:   in.Email,
 			Error:     err,
 			ErrorCode: "AA900",
@@ -47,7 +46,7 @@ func (l *AuthenticateLogic) Authenticate(in *user_server.AuthenticateRequest) (*
 	isValid := l.Tools.CheckPassword(in.Password, user.HashPassword)
 	if !isValid {
 		err = fmt.Errorf("密码错误")
-		logs.Error(nil, logs.ErrorContent{
+		log.Error(nil, log.ErrorContent{
 			Message:   in.Email,
 			Error:     err,
 			ErrorCode: "AA901",
@@ -56,6 +55,6 @@ func (l *AuthenticateLogic) Authenticate(in *user_server.AuthenticateRequest) (*
 	}
 
 	return &user_server.AuthenticateResponse{
-		UserId: uint32(user.Id),
+		UserId: user.Id,
 	}, nil
 }

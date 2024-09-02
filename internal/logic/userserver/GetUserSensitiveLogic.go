@@ -2,6 +2,9 @@ package userserverlogic
 
 import (
 	"context"
+	"github.com/zzp-Z/UserServer/db/crud"
+	"github.com/zzp-Z/UserServer/log"
+	"strconv"
 
 	"github.com/zzp-Z/UserServer/internal/svc"
 	"github.com/zzp-Z/UserServer/user_server"
@@ -13,19 +16,37 @@ type GetUserSensitiveLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
+	UserModel crud.UserModel
 }
 
 func NewGetUserSensitiveLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserSensitiveLogic {
 	return &GetUserSensitiveLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		ctx:       ctx,
+		svcCtx:    svcCtx,
+		Logger:    logx.WithContext(ctx),
+		UserModel: crud.NewUserModel(svcCtx.SqlConn, svcCtx.CacheConf),
 	}
 }
 
-// 获取用户信息（包含敏感信息）
+// GetUserSensitive 获取用户信息（包含敏感信息）
 func (l *GetUserSensitiveLogic) GetUserSensitive(in *user_server.GetUserInfoByIdRequest) (*user_server.UserSensitiveInfoResponse, error) {
-	// todo: add your logic here and delete this line
+	// Step 1: 查询用户信息
+	user, err := l.UserModel.FindOne(l.ctx, uint64(in.UserId))
+	if err != nil {
+		log.Error(nil, log.ErrorContent{
+			Error:     err,
+			ErrorCode: "GUS711",
+			Message:   strconv.FormatUint(in.UserId, 10),
+		})
+		return nil, err
+	}
 
-	return &user_server.UserSensitiveInfoResponse{}, nil
+	return &user_server.UserSensitiveInfoResponse{
+		UserId:   user.Id,
+		Username: user.Username,
+		Bio:      user.Bio.String,
+		Quotes:   user.Quotes.String,
+		MoodId:   uint64(user.MoodId.Int64),
+		Email:    user.Email,
+	}, nil
 }

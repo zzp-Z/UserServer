@@ -13,23 +13,43 @@ import (
 )
 
 type (
+	AddUserRoleRequest           = user_server.AddUserRoleRequest
+	AddUserRoleResponse          = user_server.AddUserRoleResponse
 	AuthenticateRequest          = user_server.AuthenticateRequest
 	AuthenticateResponse         = user_server.AuthenticateResponse
 	ChangePasswordRequest        = user_server.ChangePasswordRequest
 	ChangePasswordResponse       = user_server.ChangePasswordResponse
+	CheckUserRoleRequest         = user_server.CheckUserRoleRequest
+	CheckUserRoleResponse        = user_server.CheckUserRoleResponse
+	CreateRoleRequest            = user_server.CreateRoleRequest
+	CreateRoleResponse           = user_server.CreateRoleResponse
+	DeleteRoleRequest            = user_server.DeleteRoleRequest
+	DeleteRoleResponse           = user_server.DeleteRoleResponse
 	DeleteUserRequest            = user_server.DeleteUserRequest
 	DeleteUserResponse           = user_server.DeleteUserResponse
+	DeleteUserRoleRequest        = user_server.DeleteUserRoleRequest
+	DeleteUserRoleResponse       = user_server.DeleteUserRoleResponse
 	FollowRequest                = user_server.FollowRequest
 	FollowResponse               = user_server.FollowResponse
 	GetFollowersListRequest      = user_server.GetFollowersListRequest
 	GetFollowersListResponse     = user_server.GetFollowersListResponse
 	GetFollowingListRequest      = user_server.GetFollowingListRequest
 	GetFollowingListResponse     = user_server.GetFollowingListResponse
+	GetRoleListRequest           = user_server.GetRoleListRequest
+	GetRoleListResponse          = user_server.GetRoleListResponse
+	GetRoleRequest               = user_server.GetRoleRequest
+	GetRoleResponse              = user_server.GetRoleResponse
+	GetRoleUsersRequest          = user_server.GetRoleUsersRequest
+	GetRoleUsersResponse         = user_server.GetRoleUsersResponse
 	GetUserInfoByIdRequest       = user_server.GetUserInfoByIdRequest
+	GetUserRolesRequest          = user_server.GetUserRolesRequest
+	GetUserRolesResponse         = user_server.GetUserRolesResponse
 	RegisterRequest              = user_server.RegisterRequest
 	RegisterResponse             = user_server.RegisterResponse
 	UnfollowRequest              = user_server.UnfollowRequest
 	UnfollowResponse             = user_server.UnfollowResponse
+	UpdateRoleRequest            = user_server.UpdateRoleRequest
+	UpdateRoleResponse           = user_server.UpdateRoleResponse
 	UpdateUserRequest            = user_server.UpdateUserRequest
 	UpdateUserResponse           = user_server.UpdateUserResponse
 	UserNonSensitiveInfoResponse = user_server.UserNonSensitiveInfoResponse
@@ -50,14 +70,6 @@ type (
 		ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...grpc.CallOption) (*ChangePasswordResponse, error)
 		// 删除用户
 		DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
-		// 关注用户
-		Follow(ctx context.Context, in *FollowRequest, opts ...grpc.CallOption) (*FollowResponse, error)
-		// 取消关注用户
-		Unfollow(ctx context.Context, in *UnfollowRequest, opts ...grpc.CallOption) (*UnfollowResponse, error)
-		// 获取关注列表
-		GetFollowingList(ctx context.Context, in *GetFollowingListRequest, opts ...grpc.CallOption) (*GetFollowingListResponse, error)
-		// 获取被关注列表
-		GetFollowersList(ctx context.Context, in *GetFollowersListRequest, opts ...grpc.CallOption) (*GetFollowersListResponse, error)
 	}
 
 	defaultUserServer struct {
@@ -111,28 +123,4 @@ func (m *defaultUserServer) ChangePassword(ctx context.Context, in *ChangePasswo
 func (m *defaultUserServer) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error) {
 	client := user_server.NewUserServerClient(m.cli.Conn())
 	return client.DeleteUser(ctx, in, opts...)
-}
-
-// 关注用户
-func (m *defaultUserServer) Follow(ctx context.Context, in *FollowRequest, opts ...grpc.CallOption) (*FollowResponse, error) {
-	client := user_server.NewUserServerClient(m.cli.Conn())
-	return client.Follow(ctx, in, opts...)
-}
-
-// 取消关注用户
-func (m *defaultUserServer) Unfollow(ctx context.Context, in *UnfollowRequest, opts ...grpc.CallOption) (*UnfollowResponse, error) {
-	client := user_server.NewUserServerClient(m.cli.Conn())
-	return client.Unfollow(ctx, in, opts...)
-}
-
-// 获取关注列表
-func (m *defaultUserServer) GetFollowingList(ctx context.Context, in *GetFollowingListRequest, opts ...grpc.CallOption) (*GetFollowingListResponse, error) {
-	client := user_server.NewUserServerClient(m.cli.Conn())
-	return client.GetFollowingList(ctx, in, opts...)
-}
-
-// 获取被关注列表
-func (m *defaultUserServer) GetFollowersList(ctx context.Context, in *GetFollowersListRequest, opts ...grpc.CallOption) (*GetFollowersListResponse, error) {
-	client := user_server.NewUserServerClient(m.cli.Conn())
-	return client.GetFollowersList(ctx, in, opts...)
 }
