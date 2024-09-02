@@ -17,19 +17,19 @@ message RegisterRequest {
 // 用户注册响应
 message RegisterResponse {
   // 用户id
-  uint32 UserId = 1;
+  uint64 UserId = 1;
 }
 
 // 获取用户信息请求
 message GetUserInfoByIdRequest {
   // 用户ID
-  uint32 UserId = 1;
+  uint64 UserId = 1;
 }
 
 // 获取用户信息（包含敏感信息）响应
 message UserSensitiveInfoResponse {
   // 用户ID
-  uint32 UserId = 1;
+  uint64 UserId = 1;
   // 用户名
   string Username = 2;
   // 个人介绍
@@ -38,17 +38,17 @@ message UserSensitiveInfoResponse {
   uint32 FollowerCount = 5;
   // 关注数
   uint32 FollowingCount = 6;
-  // 留言
-  string Message = 7;
+  // 个人语录
+  string Quotes = 7;
   // 心情ID
-  uint32 MoodId = 8;
+  uint64 MoodId = 8;
   // 电子邮件（敏感信息）
   string Email = 9;
 }
 // 获取用户信息（不包含敏感信息）响应
 message UserNonSensitiveInfoResponse {
   // 用户ID
-  uint32 UserId = 1;
+  uint64 UserId = 1;
   // 用户名
   string Username = 2;
   // 个人介绍
@@ -57,16 +57,16 @@ message UserNonSensitiveInfoResponse {
   uint32 FollowerCount = 5;
   // 关注数
   uint32 FollowingCount = 6;
-  // 留言
-  string Message = 7;
+  // 个人语录
+  string Quotes = 7;
   // 心情ID
-  uint32 MoodId = 8;
+  uint64 MoodId = 8;
 }
 
 // 更新用户信息请求
 message UpdateUserRequest {
   // 用户ID
-  uint32 UserId = 1;
+  uint64 UserId = 1;
   // 新用户名，可选
   string Username = 2;
   // 新个人介绍，可选
@@ -76,15 +76,13 @@ message UpdateUserRequest {
 // 更新用户信息响应
 message UpdateUserResponse {
   // 用户id
-  uint32 UserId = 1;
+  uint64 UserId = 1;
 }
 
 // 修改密码请求
 message ChangePasswordRequest {
   // 用户ID
-  uint32 UserId = 1;
-  // 当前密码
-  string OldPassword = 2;
+  uint64 UserId = 1;
   // 新密码
   string NewPassword = 3;
 }
@@ -92,19 +90,19 @@ message ChangePasswordRequest {
 // 修改密码响应
 message ChangePasswordResponse {
   // 用户ID
-  uint32 UserId = 1;
+  uint64 UserId = 1;
 }
 
 // 删除用户请求
 message DeleteUserRequest {
   // 用户ID
-  uint32 UserId = 1;
+  uint64 UserId = 1;
 }
 
 // 删除用户响应
 message DeleteUserResponse {
   // 用户ID
-  uint32 UserId = 1;
+  uint64 UserId = 1;
 }
 
 // 验证密码请求
@@ -117,8 +115,28 @@ message AuthenticateRequest {
 // 验证密码响应
 message AuthenticateResponse {
   // 用户ID
-  uint32 UserId = 1;
+  uint64 UserId = 1;
 }
+
+service UserServer {
+  //  注册新用户
+  rpc Register (RegisterRequest) returns (RegisterResponse);
+  //  验证用户密码（用途包括不限于“登录”，修改密码前的验证，修改信息前的验证等）
+  rpc Authenticate (AuthenticateRequest) returns (AuthenticateResponse);
+  //  获取用户信息（包含敏感信息）
+  rpc GetUserSensitive (GetUserInfoByIdRequest) returns (UserSensitiveInfoResponse);
+  //  获取用户信息（不包含敏感信息）
+  rpc GetUserNonSensitive (GetUserInfoByIdRequest) returns (UserNonSensitiveInfoResponse);
+  //  更新用户信息
+  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse);
+  //  修改密码
+  rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
+  //  删除用户
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
+}
+
+
+
 // 关注请求
 message FollowRequest {
   // 关注者ID
@@ -150,7 +168,7 @@ message UnfollowResponse {
 // 获取关注列表请求
 message GetFollowingListRequest {
   // 用户ID
-  uint32 UserId = 1;
+  uint64 UserId = 1;
 }
 
 // 获取关注列表响应
@@ -162,7 +180,7 @@ message GetFollowingListResponse {
 // 获取被关注列表请求
 message GetFollowersListRequest {
   // 用户ID
-  uint32 UserId = 1;
+  uint64 UserId = 1;
 }
 
 // 获取被关注列表响应
@@ -170,27 +188,140 @@ message GetFollowersListResponse {
   // 被关注列表
   repeated UserNonSensitiveInfoResponse Followers = 1;
 }
-service UserServer {
-  // 注册新用户
-  rpc Register (RegisterRequest) returns (RegisterResponse);
-  // 验证用户密码（用途包括不限于“登录”，修改密码前的验证，修改信息前的验证等）
-  rpc Authenticate (AuthenticateRequest) returns (AuthenticateResponse);
-  // 获取用户信息（包含敏感信息）
-  rpc GetUserSensitive (GetUserInfoByIdRequest) returns (UserSensitiveInfoResponse);
-  // 获取用户信息（不包含敏感信息）
-  rpc GetUserNonSensitive (GetUserInfoByIdRequest) returns (UserNonSensitiveInfoResponse);
-  // 更新用户信息
-  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse);
-  // 修改密码
-  rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
-  // 删除用户
-  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
-  // 关注用户
+
+service FollowServer {
+  //  关注用户
   rpc Follow (FollowRequest) returns (FollowResponse);
-  // 取消关注用户
+  //  取消关注用户
   rpc Unfollow (UnfollowRequest) returns (UnfollowResponse);
-  // 获取关注列表
+  //  获取关注列表
   rpc GetFollowingList (GetFollowingListRequest) returns (GetFollowingListResponse);
-  // 获取被关注列表
+  //  获取被关注列表
   rpc GetFollowersList (GetFollowersListRequest) returns (GetFollowersListResponse);
+}
+
+
+message GetRoleRequest {
+  // 角色ID
+  uint64 RoleId = 1;
+}
+message GetRoleResponse {
+  // 角色ID
+  uint64 RoleId = 1;
+  // 角色名称
+  string RoleName = 2;
+}
+message GetRoleListRequest {}
+message GetRoleListResponse {
+  // 角色列表
+  repeated GetRoleResponse Roles = 1;
+}
+message UpdateRoleRequest {
+  // 角色ID
+  uint64 RoleId = 1;
+  // 新角色名称
+  string NewRoleName = 2;
+}
+message UpdateRoleResponse {
+  // 角色ID
+  uint64 RoleId = 1;
+}
+message DeleteRoleRequest {
+  // 角色ID
+  uint64 RoleId = 1;
+}
+message DeleteRoleResponse {
+  // 角色ID
+  uint64 RoleId = 1;
+}
+message CreateRoleRequest {
+  // 角色名称
+  string RoleName = 1;
+}
+message CreateRoleResponse {
+  // 角色ID
+  uint64 RoleId = 1;
+  // 角色名称
+  string RoleName = 2;
+}
+
+service RoleServer {
+  //  获取角色信息
+  rpc GetRole (GetRoleRequest) returns (GetRoleResponse);
+  //  获取角色列表
+  rpc GetRoleList (GetRoleListRequest) returns (GetRoleListResponse);
+  //  更新角色
+  rpc UpdateRole (UpdateRoleRequest) returns (UpdateRoleResponse);
+  //  删除角色
+  rpc DeleteRole (DeleteRoleRequest) returns (DeleteRoleResponse);
+  //  创建角色
+  rpc CreateRole (CreateRoleRequest) returns (CreateRoleResponse);
+}
+
+message GetUserRolesRequest {
+  // 用户ID
+  uint64 UserId = 1;
+}
+message GetUserRolesResponse {
+  // 角色列表
+  repeated GetRoleResponse Roles = 1;
+}
+message AddUserRoleRequest {
+  // 用户ID
+  uint64 UserId = 1;
+  // 角色ID
+  uint64 RoleId = 2;
+}
+message AddUserRoleResponse {
+  // 用户ID
+  uint64 UserId = 1;
+  // 角色ID
+  uint64 RoleId = 2;
+}
+message DeleteUserRoleRequest {
+  // 用户ID
+  uint64 UserId = 1;
+  // 角色ID
+  uint64 RoleId = 2;
+}
+message DeleteUserRoleResponse {
+  // 用户ID
+  uint64 UserId = 1;
+  // 角色ID
+  uint64 RoleId = 2;
+}
+message GetRoleUsersRequest {
+  // 角色ID
+  uint64 RoleId = 1;
+}
+message GetRoleUsersResponse {
+  // 用户列表
+  repeated UserNonSensitiveInfoResponse Users = 1;
+}
+message CheckUserRoleRequest {
+  // 用户ID
+  uint64 UserId = 1;
+  // 角色ID
+  uint64 RoleId = 2;
+}
+message CheckUserRoleResponse {
+  // 用户ID
+  uint64 UserId = 1;
+  // 角色ID
+  uint64 RoleId = 2;
+  // 是否拥有该角色
+  bool HasRole = 3;
+}
+
+service UserRoleServer {
+  //  获取用户角色列表
+  rpc GetUserRoles (GetUserRolesRequest) returns (GetUserRolesResponse);
+  //  添加用户角色
+  rpc AddUserRole (AddUserRoleRequest) returns (AddUserRoleResponse);
+  //  删除用户角色
+  rpc DeleteUserRole (DeleteUserRoleRequest) returns (DeleteUserRoleResponse);
+  //  获取角色用户列表
+  rpc GetRoleUsers (GetRoleUsersRequest) returns (GetRoleUsersResponse);
+  //  检查用户角色
+  rpc CheckUserRole (CheckUserRoleRequest) returns (CheckUserRoleResponse);
 }
