@@ -34,10 +34,6 @@ message UserSensitiveInfoResponse {
   string Username = 2;
   // 个人介绍
   string Bio = 4;
-  // 粉丝数
-  uint32 FollowerCount = 5;
-  // 关注数
-  uint32 FollowingCount = 6;
   // 个人语录
   string Quotes = 7;
   // 心情ID
@@ -53,10 +49,6 @@ message UserNonSensitiveInfoResponse {
   string Username = 2;
   // 个人介绍
   string Bio = 4;
-  // 粉丝数
-  uint32 FollowerCount = 5;
-  // 关注数
-  uint32 FollowingCount = 6;
   // 个人语录
   string Quotes = 7;
   // 心情ID
@@ -140,29 +132,29 @@ service UserServer {
 // 关注请求
 message FollowRequest {
   // 关注者ID
-  uint32 FollowerId = 1;
+  uint64 FollowerId = 1;
   // 被关注者ID
-  uint32 FolloweeId = 2;
+  uint64 FolloweeId = 2;
 }
 
 // 关注响应
 message FollowResponse {
   // 被关注者ID
-  uint32 FolloweeId = 1;
+  uint64 FolloweeId = 1;
 }
 
 // 取消关注请求
 message UnfollowRequest {
   // 关注者ID
-  uint32 FollowerId = 1;
+  uint64 FollowerId = 1;
   // 被取消关注者ID
-  uint32 FolloweeId = 2;
+  uint64 FolloweeId = 2;
 }
 
 // 取消关注响应
 message UnfollowResponse {
   // 被取消关注者ID
-  uint32 FolloweeId = 1;
+  uint64 FolloweeId = 1;
 }
 
 // 获取关注列表请求
@@ -174,7 +166,7 @@ message GetFollowingListRequest {
 // 获取关注列表响应
 message GetFollowingListResponse {
   // 关注列表
-  repeated UserNonSensitiveInfoResponse Following = 1;
+  repeated uint64 UserIds = 1;
 }
 
 // 获取被关注列表请求
@@ -186,7 +178,7 @@ message GetFollowersListRequest {
 // 获取被关注列表响应
 message GetFollowersListResponse {
   // 被关注列表
-  repeated UserNonSensitiveInfoResponse Followers = 1;
+  repeated uint64 UserIds = 1;
 }
 
 service FollowServer {
@@ -237,6 +229,8 @@ message DeleteRoleResponse {
 message CreateRoleRequest {
   // 角色名称
   string RoleName = 1;
+  // 说明
+  string Description = 2;
 }
 message CreateRoleResponse {
   // 角色ID

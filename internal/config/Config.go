@@ -7,6 +7,7 @@ import (
 
 type Config struct {
 	zrpc.RpcServerConf
+	PodIp      string
 	DataSource string // 数据库连接字符串
 	Cache      cache.CacheConf
 }

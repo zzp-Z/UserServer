@@ -2,11 +2,10 @@ package userserverlogic
 
 import (
 	"context"
+	"fmt"
 	"github.com/zzp-Z/UserServer/db/crud"
-	"github.com/zzp-Z/UserServer/log"
-	"strconv"
-
 	"github.com/zzp-Z/UserServer/internal/svc"
+	"github.com/zzp-Z/UserServer/log"
 	"github.com/zzp-Z/UserServer/user_server"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -36,7 +35,7 @@ func (l *GetUserSensitiveLogic) GetUserSensitive(in *user_server.GetUserInfoById
 		log.Error(nil, log.ErrorContent{
 			Error:     err,
 			ErrorCode: "GUS711",
-			Message:   strconv.FormatUint(in.UserId, 10),
+			Message:   fmt.Sprintf("userId: %d", in.UserId),
 		})
 		return nil, err
 	}

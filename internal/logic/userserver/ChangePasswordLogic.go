@@ -2,14 +2,13 @@ package userserverlogic
 
 import (
 	"context"
+	"fmt"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zzp-Z/UserServer/db/crud"
 	"github.com/zzp-Z/UserServer/internal/logic"
 	"github.com/zzp-Z/UserServer/internal/svc"
 	"github.com/zzp-Z/UserServer/log"
 	"github.com/zzp-Z/UserServer/user_server"
-	"strconv"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type ChangePasswordLogic struct {
@@ -36,7 +35,7 @@ func (l *ChangePasswordLogic) ChangePassword(in *user_server.ChangePasswordReque
 	user, err := l.UserModel.FindOne(l.ctx, in.UserId)
 	if err != nil {
 		log.Error(nil, log.ErrorContent{
-			Message:   strconv.FormatUint(in.UserId, 10),
+			Message:   fmt.Sprintf("userId: %v", in.UserId),
 			Error:     err,
 			ErrorCode: "CP491",
 		})

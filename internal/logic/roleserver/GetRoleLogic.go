@@ -23,7 +23,7 @@ func NewGetRoleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetRoleLo
 	}
 }
 
-// 获取角色信息
+// GetRole 获取角色信息
 func (l *GetRoleLogic) GetRole(in *user_server.GetRoleRequest) (*user_server.GetRoleResponse, error) {
 	// todo: add your logic here and delete this line
 

@@ -3,9 +3,9 @@ package userserverlogic
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/zzp-Z/UserServer/db/crud"
 	"github.com/zzp-Z/UserServer/log"
-	"strconv"
 	"time"
 
 	"github.com/zzp-Z/UserServer/internal/svc"
@@ -36,7 +36,7 @@ func (l *DeleteUserLogic) DeleteUser(in *user_server.DeleteUserRequest) (*user_s
 	user, err := l.UserModel.FindOne(l.ctx, in.UserId)
 	if err != nil {
 		log.Error(nil, log.ErrorContent{
-			Message:   strconv.FormatUint(in.UserId, 10),
+			Message:   fmt.Sprintf("UserId: %d", in.UserId),
 			Error:     err,
 			ErrorCode: "DU823",
 		})
@@ -50,7 +50,7 @@ func (l *DeleteUserLogic) DeleteUser(in *user_server.DeleteUserRequest) (*user_s
 	err = l.UserModel.Update(l.ctx, user)
 	if err != nil {
 		log.Error(nil, log.ErrorContent{
-			Message:   strconv.FormatUint(in.UserId, 10),
+			Message:   fmt.Sprintf("UserId: %d", in.UserId),
 			Error:     err,
 			ErrorCode: "DU824",
 		})

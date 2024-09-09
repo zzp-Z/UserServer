@@ -3,11 +3,10 @@ package userserverlogic
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/zzp-Z/UserServer/db/crud"
-	"github.com/zzp-Z/UserServer/log"
-	"strconv"
-
 	"github.com/zzp-Z/UserServer/internal/svc"
+	"github.com/zzp-Z/UserServer/log"
 	"github.com/zzp-Z/UserServer/user_server"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -35,7 +34,7 @@ func (l *UpdateUserLogic) UpdateUser(in *user_server.UpdateUserRequest) (*user_s
 	user, err := l.UserModel.FindOne(l.ctx, in.UserId)
 	if err != nil {
 		log.Error(nil, log.ErrorContent{
-			Message:   strconv.FormatUint(in.UserId, 10),
+			Message:   fmt.Sprintf("userId: %d", in.UserId),
 			Error:     err,
 			ErrorCode: "UU3921",
 		})

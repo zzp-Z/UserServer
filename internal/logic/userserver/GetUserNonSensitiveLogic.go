@@ -2,11 +2,10 @@ package userserverlogic
 
 import (
 	"context"
+	"fmt"
 	"github.com/zzp-Z/UserServer/db/crud"
-	"github.com/zzp-Z/UserServer/log"
-	"strconv"
-
 	"github.com/zzp-Z/UserServer/internal/svc"
+	"github.com/zzp-Z/UserServer/log"
 	"github.com/zzp-Z/UserServer/user_server"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -34,7 +33,7 @@ func (l *GetUserNonSensitiveLogic) GetUserNonSensitive(in *user_server.GetUserIn
 	user, err := l.UserModel.FindOne(l.ctx, in.UserId)
 	if err != nil {
 		log.Error(nil, log.ErrorContent{
-			Message:   strconv.FormatUint(in.UserId, 10),
+			Message:   fmt.Sprintf("userId: %d", in.UserId),
 			Error:     err,
 			ErrorCode: "GUNS4022",
 		})
@@ -42,12 +41,10 @@ func (l *GetUserNonSensitiveLogic) GetUserNonSensitive(in *user_server.GetUserIn
 	}
 
 	return &user_server.UserNonSensitiveInfoResponse{
-		UserId:         user.Id,
-		Username:       user.Username,
-		Bio:            user.Bio.String,
-		FollowerCount:  0,
-		FollowingCount: 0,
-		Quotes:         user.Quotes.String,
-		MoodId:         uint64(user.MoodId.Int64),
+		UserId:   user.Id,
+		Username: user.Username,
+		Bio:      user.Bio.String,
+		Quotes:   user.Quotes.String,
+		MoodId:   uint64(user.MoodId.Int64),
 	}, nil
 }
