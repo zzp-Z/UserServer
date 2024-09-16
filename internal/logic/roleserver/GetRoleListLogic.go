@@ -27,8 +27,22 @@ func NewGetRoleListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetRo
 }
 
 // GetRoleList 获取角色列表
-func (l *GetRoleListLogic) GetRoleList(in *user_server.GetRoleListRequest) (*user_server.GetRoleListResponse, error) {
-	// todo: add your logic here and delete this line
-	//l.RoleModel.
-	return &user_server.GetRoleListResponse{}, nil
+func (l *GetRoleListLogic) GetRoleList() (*user_server.GetRoleListResponse, error) {
+	// Step 1: 获取角色列表
+	all, err := l.RoleModel.FindAll(l.ctx)
+	if err != nil {
+		return nil, err
+	}
+	// Step 2: 转换为pb格式
+	list := make([]*user_server.GetRoleResponse, len(all))
+	for i, v := range all {
+		list[i] = &user_server.GetRoleResponse{
+			RoleId:   v.Id,
+			RoleName: v.Name,
+		}
+	}
+	// Step 3: 返回
+	return &user_server.GetRoleListResponse{
+		Roles: list,
+	}, nil
 }
