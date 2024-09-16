@@ -30,7 +30,19 @@ func NewCreateRoleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Create
 
 // CreateRole 创建角色
 func (l *CreateRoleLogic) CreateRole(in *user_server.CreateRoleRequest) (*user_server.CreateRoleResponse, error) {
-	// Step 1: 创建角色
+	// Step 1: 查询角色是否存在
+	_, err := l.RoleModel.FindOneByName(l.ctx, in.RoleName)
+	if err == nil {
+		err = fmt.Errorf("角色已存在")
+		log.Error(l.ctx, log.ErrorContent{
+			Message:   in.RoleName,
+			Error:     err,
+			ErrorCode: "CR0133",
+		})
+		return nil, err
+	}
+
+	// Step 2: 创建角色
 	insert, err := l.RoleModel.Insert(l.ctx, &crud.Role{
 		Name: in.RoleName,
 		Description: sql.NullString{
