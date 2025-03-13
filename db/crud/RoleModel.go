@@ -22,7 +22,7 @@ type (
 	}
 )
 
-// NewRoleModel returns a model for the database table.
+// NewRoleModel returns a sql for the database table.
 func NewRoleModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) RoleModel {
 	return &customRoleModel{
 		defaultRoleModel: newRoleModel(conn, c, opts...),

@@ -23,7 +23,7 @@ type (
 	}
 )
 
-// NewFollowModel returns a model for the database table.
+// NewFollowModel returns a sql for the database table.
 func NewFollowModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) FollowModel {
 	return &customFollowModel{
 		defaultFollowModel: newFollowModel(conn, c, opts...),

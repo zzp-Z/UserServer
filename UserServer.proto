@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-package user_server;
-option go_package = "./user_server";
+package UserService;
+option go_package = "./UserService";
 
 
 // 用户注册请求
@@ -110,23 +110,6 @@ message AuthenticateResponse {
   uint64 UserId = 1;
 }
 
-service UserServer {
-  //  注册新用户
-  rpc Register (RegisterRequest) returns (RegisterResponse);
-  //  验证用户密码（用途包括不限于“登录”，修改密码前的验证，修改信息前的验证等）
-  rpc Authenticate (AuthenticateRequest) returns (AuthenticateResponse);
-  //  获取用户信息（包含敏感信息）
-  rpc GetUserSensitive (GetUserInfoByIdRequest) returns (UserSensitiveInfoResponse);
-  //  获取用户信息（不包含敏感信息）
-  rpc GetUserNonSensitive (GetUserInfoByIdRequest) returns (UserNonSensitiveInfoResponse);
-  //  更新用户信息
-  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse);
-  //  修改密码
-  rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
-  //  删除用户
-  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
-}
-
 
 
 // 关注请求
@@ -134,13 +117,13 @@ message FollowRequest {
   // 关注者ID
   uint64 FollowerId = 1;
   // 被关注者ID
-  uint64 FolloweeId = 2;
+  uint64 FollowingId = 2;
 }
 
 // 关注响应
 message FollowResponse {
   // 被关注者ID
-  uint64 FolloweeId = 1;
+  uint64 FollowingId = 1;
 }
 
 // 取消关注请求
@@ -148,13 +131,13 @@ message UnfollowRequest {
   // 关注者ID
   uint64 FollowerId = 1;
   // 被取消关注者ID
-  uint64 FolloweeId = 2;
+  uint64 FollowingId = 2;
 }
 
 // 取消关注响应
 message UnfollowResponse {
   // 被取消关注者ID
-  uint64 FolloweeId = 1;
+  uint64 FollowingId = 1;
 }
 
 // 获取关注列表请求
@@ -180,8 +163,21 @@ message GetFollowersListResponse {
   // 被关注列表
   repeated uint64 UserIds = 1;
 }
-
-service FollowServer {
+service User {
+  //  注册新用户
+  rpc Register (RegisterRequest) returns (RegisterResponse);
+  //  验证用户密码（用途包括不限于“登录”，修改密码前的验证，修改信息前的验证等）
+  rpc Authenticate (AuthenticateRequest) returns (AuthenticateResponse);
+  //  获取用户信息（包含敏感信息）
+  rpc GetUserSensitive (GetUserInfoByIdRequest) returns (UserSensitiveInfoResponse);
+  //  获取用户信息（不包含敏感信息）
+  rpc GetUserNonSensitive (GetUserInfoByIdRequest) returns (UserNonSensitiveInfoResponse);
+  //  更新用户信息
+  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse);
+  //  修改密码
+  rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
+  //  删除用户
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
   //  关注用户
   rpc Follow (FollowRequest) returns (FollowResponse);
   //  取消关注用户
@@ -239,18 +235,6 @@ message CreateRoleResponse {
   string RoleName = 2;
 }
 
-service RoleServer {
-  //  获取角色信息
-  rpc GetRole (GetRoleRequest) returns (GetRoleResponse);
-  //  获取角色列表
-  rpc GetRoleList (GetRoleListRequest) returns (GetRoleListResponse);
-  //  更新角色
-  rpc UpdateRole (UpdateRoleRequest) returns (UpdateRoleResponse);
-  //  删除角色
-  rpc DeleteRole (DeleteRoleRequest) returns (DeleteRoleResponse);
-  //  创建角色
-  rpc CreateRole (CreateRoleRequest) returns (CreateRoleResponse);
-}
 
 message GetUserRolesRequest {
   // 用户ID
@@ -307,7 +291,18 @@ message CheckUserRoleResponse {
   bool HasRole = 3;
 }
 
-service UserRoleServer {
+
+service Role {
+  //  获取角色信息
+  rpc GetRole (GetRoleRequest) returns (GetRoleResponse);
+  //  获取角色列表
+  rpc GetRoleList (GetRoleListRequest)   returns (GetRoleListResponse);
+  //  更新角色
+  rpc UpdateRole (UpdateRoleRequest) returns (UpdateRoleResponse);
+  //  删除角色
+  rpc DeleteRole (DeleteRoleRequest) returns (DeleteRoleResponse);
+  //  创建角色
+  rpc CreateRole (CreateRoleRequest) returns (CreateRoleResponse);
   //  获取用户角色列表
   rpc GetUserRoles (GetUserRolesRequest) returns (GetUserRolesResponse);
   //  添加用户角色
@@ -318,4 +313,86 @@ service UserRoleServer {
   rpc GetRoleUsers (GetRoleUsersRequest) returns (GetRoleUsersResponse);
   //  检查用户角色
   rpc CheckUserRole (CheckUserRoleRequest) returns (CheckUserRoleResponse);
+}
+
+// 权限请求
+message GetPermissionRequest {
+  //  权限ID
+  uint64 Id = 1;
+}
+message GetPermissionResponse {
+  //  权限ID
+  uint64 Id = 1;
+  //  权限名称
+  string Name = 2;
+  //  请求方法
+  string Method = 3;
+  //  权限描述
+  string Description = 4;
+}
+message CreatePermissionRequest {
+  //  权限名称
+  string Name = 1;
+  //  请求方法
+  string Method = 2;
+  //  权限描述
+  string Description = 3;
+}
+message CreatePermissionResponse {
+  //  权限ID
+  uint64 Id = 1;
+}
+message DeletePermissionRequest {
+  //  权限ID
+  uint64 Id = 1;
+}
+message DeletePermissionResponse {
+  //  权限ID
+  uint64 Id = 1;
+}
+
+// 角色权限请求
+message AssignRolePermissionRequest {
+  uint64 RoleId = 1;
+  uint64 PermissionId = 2;
+}
+message AssignRolePermissionResponse {
+  uint64 RoleId = 1;
+  uint64 PermissionId = 2;
+}
+message RemoveRolePermissionRequest {
+  uint64 RoleId = 1;
+  uint64 PermissionId = 2;
+}
+message RemoveRolePermissionResponse {
+  uint64 RoleId = 1;
+  uint64 PermissionId = 2;
+}
+message GetRolePermissionsRequest {
+  uint64 RoleId = 1;
+}
+message GetRolePermissionsResponse {
+  repeated GetPermissionResponse Permissions = 1;
+}
+message GetUserPermissionsRequest {
+  uint64 UserId = 1;
+}
+message GetUserPermissionsResponse {
+  repeated GetPermissionResponse Permissions = 1;
+}
+service Permission {
+  //  获取权限信息
+  rpc GetPermission (GetPermissionRequest) returns (GetPermissionResponse);
+  //  创建权限
+  rpc CreatePermission (CreatePermissionRequest) returns (CreatePermissionResponse);
+  //  删除权限
+  rpc DeletePermission (DeletePermissionRequest) returns (DeletePermissionResponse);
+  //  角色权限
+  rpc AssignRolePermission (AssignRolePermissionRequest) returns (AssignRolePermissionResponse);
+  //  移除角色权限
+  rpc RemoveRolePermission (RemoveRolePermissionRequest) returns (RemoveRolePermissionResponse);
+  //  获取角色权限
+  rpc GetRolePermissions (GetRolePermissionsRequest) returns (GetRolePermissionsResponse);
+  //  获取用户权限
+  rpc GetUserPermissions (GetUserPermissionsRequest) returns (GetUserPermissionsResponse);
 }

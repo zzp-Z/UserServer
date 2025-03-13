@@ -19,7 +19,7 @@ type (
 	}
 )
 
-// NewUserRoleModel returns a model for the database table.
+// NewUserRoleModel returns a sql for the database table.
 func NewUserRoleModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) UserRoleModel {
 	return &customUserRoleModel{
 		defaultUserRoleModel: newUserRoleModel(conn, c, opts...),

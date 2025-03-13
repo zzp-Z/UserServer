@@ -4,13 +4,12 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/zzp-Z/UserServer/UserService"
 	"github.com/zzp-Z/UserServer/internal/config"
-	followserverServer "github.com/zzp-Z/UserServer/internal/server/followserver"
-	roleserverServer "github.com/zzp-Z/UserServer/internal/server/roleserver"
-	userroleserverServer "github.com/zzp-Z/UserServer/internal/server/userroleserver"
-	userserverServer "github.com/zzp-Z/UserServer/internal/server/userserver"
+	permissionServer "github.com/zzp-Z/UserServer/internal/server/permission"
+	roleServer "github.com/zzp-Z/UserServer/internal/server/role"
+	userServer "github.com/zzp-Z/UserServer/internal/server/user"
 	"github.com/zzp-Z/UserServer/internal/svc"
-	"github.com/zzp-Z/UserServer/user_server"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -29,10 +28,9 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		user_server.RegisterUserServerServer(grpcServer, userserverServer.NewUserServerServer(ctx))
-		user_server.RegisterFollowServerServer(grpcServer, followserverServer.NewFollowServerServer(ctx))
-		user_server.RegisterRoleServerServer(grpcServer, roleserverServer.NewRoleServerServer(ctx))
-		user_server.RegisterUserRoleServerServer(grpcServer, userroleserverServer.NewUserRoleServerServer(ctx))
+		UserService.RegisterUserServer(grpcServer, userServer.NewUserServer(ctx))
+		UserService.RegisterRoleServer(grpcServer, roleServer.NewRoleServer(ctx))
+		UserService.RegisterPermissionServer(grpcServer, permissionServer.NewPermissionServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

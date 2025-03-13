@@ -2,3 +2,7 @@
 /build
 /.idea
 /logs/*
+/db/crud/*_gen.go
+/internal/server
+/client
+/UserService
